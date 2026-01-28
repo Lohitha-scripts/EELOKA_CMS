@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Epaper Layout</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+    <header class="header">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">EELOKA</a>
+            <button class="burger" aria-label="Menu"><i class="fas fa-bars"></i></button>
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="#" class="nav-link">About Us</a>
+                <a href="#" class="nav-link">Contact Us</a>
+                <a href="#" class="nav-link">Privacy Policy</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content container">
+        <!-- Hero Section: Today's Paper, Live, Calendar -->
+        <section class="hero-section">
+            <!-- 1. Today's Paper (Left) -->
+            <div class="card hero-card today-card" id="today-paper-container">
+                <!-- Content injected by JS -->
+                <div class="skeleton-loader"></div>
+            </div>
+
+            <!-- 2. Live Stream (Center) -->
+            <div class="card hero-card live-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-broadcast-tower"></i> Live Stream</h3>
+                    <button class="btn-live-modal" onclick="openVideoModal()"
+                        style="margin-left:auto; font-size: 0.8rem; padding: 2px 8px; cursor: pointer;">Expand</button>
+                </div>
+                <div class="live-embed-wrapper">
+                    <iframe src="https://www.youtube.com/embed/LIVE_VIDEO_ID" title="Live Stream" frameborder="0"
+                        allowfullscreen></iframe>
+                </div>
+                <div class="live-meta">
+                    <span class="live-badge">LIVE</span>
+                    <p id="live-date">Today's Broadcast</p>
+                </div>
+            </div>
+
+            <!-- 3. Calendar (Right) -->
+            <div class="card hero-card calendar-card" id="homepage-calendar">
+                <!-- Calendar injected by JS -->
+            </div>
+        </section>
+
+        <!-- Archive Section -->
+        <section class="archive-section">
+            <div class="section-header">
+                <h2>Archives</h2>
+                <div class="divider"></div>
+            </div>
+
+            <div class="archive-grid" id="epaper-grid">
+                <!-- Grid injected by JS -->
+            </div>
+
+            <!-- Clean Pagination -->
+            <div id="pagination-controls" class="pagination-container">
+                <!-- JS will populates this properly instead of the old .pages div -->
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="socials">
+                <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="social-link"><i class="fab fa-x-twitter"></i></a>
+                <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+            </div>
+            <p class="copyright">&copy; 2026 Eeloka. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Newspaper Viewer Modal -->
+    <div id="viewer-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <header class="modal-header">
+                <div class="modal-controls-left">
+                    <button class="nav-btn-modal" id="modal-prev-btn"><i class="fas fa-chevron-left"></i></button>
+                    <span id="modal-page-num">Page 1</span>
+                    <button class="nav-btn-modal" id="modal-next-btn"><i class="fas fa-chevron-right"></i></button>
+                </div>
+                <div class="modal-controls-right">
+                    <button class="btn-tool" id="btn-clip-toggle"><i class="fas fa-scissors"></i> Clip</button>
+                    <button class="btn-tool" id="btn-download-pdf"><i class="fas fa-file-pdf"></i> PDF</button>
+                    <button class="btn-close" id="btn-close-modal"><i class="fas fa-times"></i></button>
+                </div>
+            </header>
+
+            <div class="modal-body">
+                <div class="modal-sidebar" id="modal-thumbnails"></div>
+                <div class="modal-viewer-area" id="modal-viewer-container">
+                    <canvas id="pdf-render-canvas"></canvas>
+                    <div class="nav-hotspot left" id="hotspot-left"></div>
+                    <div class="nav-hotspot right" id="hotspot-right"></div>
+                    <div id="clipping-overlay" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Viewer Modal -->
+    <div id="video-modal" class="modal-overlay" style="display: none; z-index: 2002;">
+        <div class="video-modal-content">
+            <button class="btn-close-video" id="btn-close-video"><i class="fas fa-times"></i></button>
+            <div class="video-container">
+                <iframe id="video-iframe" src="" frameborder="0" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clipping Result Modal -->
+    <div id="clip-result-modal" class="modal-overlay" style="display: none; z-index: 2001;">
+        <div class="clip-modal-content">
+            <div class="clip-header">
+                <h3>Clipped Snippet</h3>
+                <button class="btn-close-small" id="btn-close-clip-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="clip-body">
+                <img id="clipped-image" src="" alt="Clipped Content">
+            </div>
+            <div class="clip-footer">
+                <button class="btn-share"><i class="fab fa-whatsapp"></i> Share</button>
+                <button class="btn-download" id="btn-download-clip"><i class="fas fa-download"></i> Download</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
+    <!-- Repo uses script.js (main.js was referenced but doesn't exist) -->
+    <script src="script.js"></script>
+</body>
+
+</html>
