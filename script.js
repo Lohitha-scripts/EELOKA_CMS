@@ -275,7 +275,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!gridContainer || !todayContainer) return;
 
-        const itemsPerPage = 8;
+        // Keep UI pagination but balance rows: 10 items/page (5x2) on desktop grid.
+        const itemsPerPage = 10;
 
         // Today’s paper = newest returned by backend (which is Drive-driven).
         const todayPaper = papersCache[0] || null;
@@ -385,6 +386,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalPrevBtn = document.getElementById('modal-prev-btn');
     const modalNextBtn = document.getElementById('modal-next-btn');
     const modalPageNum = document.getElementById('modal-page-num');
+    const btnWatchLive = document.getElementById('btn-watch-live');
+    const paperPrevArrow = document.getElementById('paper-prev-arrow');
+    const paperNextArrow = document.getElementById('paper-next-arrow');
 
     // Clipping Elements
     const clippingOverlay = document.getElementById('clipping-overlay');
@@ -400,10 +404,20 @@ document.addEventListener('DOMContentLoaded', () => {
     let ctx = pdfCanvas ? pdfCanvas.getContext('2d') : null;
     let currentPaperDate = '';
     let isClippingMode = false;
+    let currentPaperIndex = -1;
+    let paperArrowTimer = null;
 
     // --- Exposed Global for onclick in generated HTML ---
     window.openViewer = function (dateStr) {
         currentPaperDate = dateStr;
+        // Track current paper index (ISO dates match backend order)
+        try {
+            const [dd, mm, yyyy] = dateStr.split('-');
+            const iso = `${yyyy}-${mm}-${dd}`;
+            currentPaperIndex = papersCache.findIndex(p => p.date === iso);
+        } catch {
+            currentPaperIndex = -1;
+        }
         modal.style.display = 'flex';
         document.body.style.overflow = 'hidden'; // Lock Body Scroll
         loadPaper(dateStr);
@@ -423,6 +437,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (btnCloseModal) btnCloseModal.onclick = closeViewer;
+
+    if (btnWatchLive) {
+        btnWatchLive.onclick = () => {
+            if (typeof window.openVideoModal === 'function') {
+                window.openVideoModal();
+            }
+        };
+    }
 
     // --- PDF Logic ---
     async function loadPaper(dateStr) {
@@ -490,10 +512,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         pdfDoc.getPage(num).then(function (page) {
             const containerWidth = modalViewerContainer.clientWidth;
-            // Calculate scale to fit width, maxing out at reasonable quality
+            // Calculate scale to fit width with minimal side gutters
             const viewportRaw = page.getViewport({ scale: 1 });
-            const scale = (containerWidth - 40) / viewportRaw.width;
-            const viewport = page.getViewport({ scale: scale < 1 ? 1 : scale }); // overflow scroll if needed
+            const scale = containerWidth / viewportRaw.width;
+            const viewport = page.getViewport({ scale });
 
             pdfCanvas.height = viewport.height;
             pdfCanvas.width = viewport.width;
@@ -511,10 +533,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     pageNumPending = null;
                 }
 
-                // Reset Clipping Overlay Dimensions to match new Page
-                if (isClippingMode) {
-                    resetClippingOverlay();
-                }
+                // Reset/realign clipping overlay dimensions to match the rendered page.
+                alignClippingOverlayToCanvas();
             });
         });
 
@@ -552,29 +572,65 @@ document.addEventListener('DOMContentLoaded', () => {
     if (spotLeft) spotLeft.onclick = onPrev;
     if (spotRight) spotRight.onclick = onNext;
 
+    function showPaperArrows() {
+        if (paperPrevArrow) paperPrevArrow.style.opacity = '1';
+        if (paperNextArrow) paperNextArrow.style.opacity = '1';
+        if (paperArrowTimer) clearTimeout(paperArrowTimer);
+        paperArrowTimer = setTimeout(() => {
+            if (paperPrevArrow) paperPrevArrow.style.opacity = '0';
+            if (paperNextArrow) paperNextArrow.style.opacity = '0';
+        }, 1000);
+    }
+
+    if (paperPrevArrow) {
+        paperPrevArrow.onclick = (e) => {
+            e.stopPropagation();
+            onPrev();
+        };
+    }
+
+    if (paperNextArrow) {
+        paperNextArrow.onclick = (e) => {
+            e.stopPropagation();
+            onNext();
+        };
+    }
+
+    if (modalViewerContainer) {
+        ['mousemove', 'touchstart'].forEach(evt => {
+            modalViewerContainer.addEventListener(evt, showPaperArrows, { passive: true });
+        });
+    }
+
 
     // --- Clipping Tool ---
     let startX, startY, isSelecting = false;
     let rect = {};
+
+    function alignClippingOverlayToCanvas() {
+        if (!pdfCanvas || !clippingOverlay) return;
+        const canvasRect = pdfCanvas.getBoundingClientRect();
+        const containerRect = modalViewerContainer.getBoundingClientRect();
+        const offsetLeft = canvasRect.left - containerRect.left;
+        const offsetTop = canvasRect.top - containerRect.top;
+        clippingOverlay.style.left = `${offsetLeft}px`;
+        clippingOverlay.style.top = `${offsetTop}px`;
+        clippingOverlay.style.width = `${canvasRect.width}px`;
+        clippingOverlay.style.height = `${canvasRect.height}px`;
+    }
 
     if (btnClipToggle) {
         btnClipToggle.onclick = () => {
             isClippingMode = !isClippingMode;
             if (isClippingMode) {
                 clippingOverlay.style.display = 'block';
-                clippingOverlay.style.width = pdfCanvas.width + 'px';
-                clippingOverlay.style.height = pdfCanvas.height + 'px';
+                alignClippingOverlayToCanvas();
                 btnClipToggle.style.background = 'rgba(255,255,255,0.2)'; // Active state visual
             } else {
                 clippingOverlay.style.display = 'none';
                 btnClipToggle.style.background = '';
             }
         };
-    }
-
-    function resetClippingOverlay() {
-        clippingOverlay.style.width = pdfCanvas.width + 'px';
-        clippingOverlay.style.height = pdfCanvas.height + 'px';
     }
 
     // Mouse + touch selection on clipping overlay (mobile + desktop)
@@ -644,11 +700,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const w = Math.abs(startX - endX);
         const h = Math.abs(startY - endY);
 
+        if (!pdfCanvas || w <= 0 || h <= 0) return;
+
+        const scaleX = pdfCanvas.width / bounds.width;
+        const scaleY = pdfCanvas.height / bounds.height;
+        const sx = x * scaleX;
+        const sy = y * scaleY;
+        const sw = w * scaleX;
+        const sh = h * scaleY;
+
         const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = w;
-        tempCanvas.height = h;
+        tempCanvas.width = sw;
+        tempCanvas.height = sh;
         const tCtx = tempCanvas.getContext('2d');
-        tCtx.drawImage(pdfCanvas, x, y, w, h, 0, 0, w, h);
+        tCtx.drawImage(pdfCanvas, sx, sy, sw, sh, 0, 0, sw, sh);
 
         clippedImage.src = tempCanvas.toDataURL('image/png');
         clipResultModal.style.display = 'block';
@@ -657,6 +722,7 @@ document.addEventListener('DOMContentLoaded', () => {
     clippingOverlay.addEventListener('mousedown', onSelectStart);
     clippingOverlay.addEventListener('mousemove', onSelectMove);
     clippingOverlay.addEventListener('mouseup', onSelectEnd);
+    clippingOverlay.addEventListener('mouseleave', onSelectEnd);
     clippingOverlay.addEventListener('touchstart', onSelectStart, { passive: false });
     clippingOverlay.addEventListener('touchmove', onSelectMove, { passive: false });
     clippingOverlay.addEventListener('touchend', onSelectEnd, { passive: false });
@@ -670,10 +736,33 @@ document.addEventListener('DOMContentLoaded', () => {
     // Download Clip
     if (btnDownloadClip) {
         btnDownloadClip.onclick = () => {
+            if (!clippedImage || !clippedImage.src) return;
             const link = document.createElement('a');
             link.download = `clip-${currentPaperDate}.png`;
             link.href = clippedImage.src;
             link.click();
+        };
+    }
+
+    // Share clipped image using existing button
+    const btnShare = document.querySelector('.btn-share');
+    if (btnShare) {
+        btnShare.onclick = async () => {
+            if (!clippedImage || !clippedImage.src) return;
+            const url = clippedImage.src;
+            const shareText = `E-paper clip (${currentPaperDate})`;
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({ title: 'E-paper clip', text: shareText, url });
+                    return;
+                } catch {
+                    // fall through to WhatsApp-style share
+                }
+            }
+
+            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + url)}`;
+            window.open(whatsappUrl, '_blank');
         };
     }
 
