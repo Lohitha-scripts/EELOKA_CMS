@@ -1,6 +1,17 @@
 /* =========================================
    1. REGIONAL NEWSPAPER THEME & VARIABLES
    ========================================= */
+   * {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden; /* prevents side scroll if something overflows */
+}
+    
 :root {
     /* Palette */
     --color-primary: #800000;
