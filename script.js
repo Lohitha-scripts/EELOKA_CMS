@@ -533,6 +533,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     pageNumPending = null;
                 }
 
+                // Reset scroll to top on every page change
+                if (modalViewerContainer) {
+                    modalViewerContainer.scrollTop = 0;
+                }
+
                 // Reset/realign clipping overlay dimensions to match the rendered page.
                 alignClippingOverlayToCanvas();
             });

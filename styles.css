@@ -582,6 +582,9 @@ main,
     display: flex;
     flex-direction: column;
     gap: 15px;
+    position: relative;
+    z-index: 101;
+    /* Ensure sidebar is above fixed hotspots */
 }
 
 .thumb-item img {
@@ -612,17 +615,26 @@ main,
     flex: 1;
     display: flex;
     justify-content: center;
-    align-items: center;
-    /* Use full available width and height without large fixed gutters */
+    align-items: flex-start;
+    /* Align to top for scrolling */
     padding: 0;
-    overflow: auto;
+    overflow-y: auto;
+    /* Enable vertical scroll */
+    overflow-x: hidden;
+    /* Prevent horizontal scroll jitter */
     position: relative;
 }
 
 #pdf-render-canvas {
-    max-width: 100%;
-    max-height: 100%;
+    width: 100%;
+    /* Fill the container width */
+    height: auto;
+    max-width: none;
+    max-height: none;
+    /* Allow height to grow for vertical scrolling */
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    display: block;
+    /* Remove baseline spacing */
 }
 
 /* Clipping Overlay */
@@ -639,29 +651,73 @@ main,
 
 /* Viewer paper-level navigation arrows */
 .viewer-paper-arrow {
-    position: absolute;
+    position: fixed;
+    /* Pin to screen */
     top: 50%;
     transform: translateY(-50%);
     padding: 12px 16px;
     border-radius: 999px;
-    background: rgba(0, 0, 0, 0.35);
+    background: rgba(0, 0, 0, 0.45);
+    /* Slightly darker for better contrast */
     color: #fff;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     opacity: 0;
-    transition: opacity 0.25s ease;
+    transition: opacity 0.25s ease, background 0.2s;
     min-width: 44px;
     min-height: 44px;
+    z-index: 105;
 }
 
 .viewer-paper-arrow.left {
-    left: 12px;
+    left: calc(200px + 20px);
+    /* Position after sidebar */
 }
 
 .viewer-paper-arrow.right {
-    right: 12px;
+    right: 20px;
+}
+
+/* Interaction Hotspots - pinned to screen */
+.nav-hotspot {
+    position: fixed;
+    top: 60px;
+    /* Below header */
+    bottom: 0;
+    width: 15vw;
+    z-index: 100;
+    cursor: pointer;
+    /* transition: background 0.2s; /* Debug: background: rgba(255,0,0,0.1) to see them */
+}
+
+.nav-hotspot.left {
+    left: 200px;
+    /* Adjacent to sidebar */
+}
+
+.nav-hotspot.right {
+    right: 0;
+}
+
+@media (max-width: 768px) {
+    .viewer-paper-arrow.left {
+        left: 10px;
+    }
+
+    .viewer-paper-arrow.right {
+        right: 10px;
+    }
+
+    .nav-hotspot.left {
+        left: 0;
+        width: 20vw;
+    }
+
+    .nav-hotspot.right {
+        width: 20vw;
+    }
 }
 
 /* Clip Modal */
