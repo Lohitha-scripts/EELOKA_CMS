@@ -626,12 +626,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function alignClippingOverlayToCanvas() {
         if (!pdfCanvas || !clippingOverlay) return;
-        const canvasRect = pdfCanvas.getBoundingClientRect();
-        const containerRect = modalViewerContainer.getBoundingClientRect();
-        const offsetLeft = canvasRect.left - containerRect.left;
-        const offsetTop = canvasRect.top - containerRect.top;
-        clippingOverlay.style.left = `${offsetLeft}px`;
-        clippingOverlay.style.top = `${offsetTop}px`;
+        clippingOverlay.style.left = `${pdfCanvas.offsetLeft}px`;
+        clippingOverlay.style.top = `${pdfCanvas.offsetTop}px`;
         clippingOverlay.style.width = `${pdfCanvas.offsetWidth}px`;
         clippingOverlay.style.height = `${pdfCanvas.offsetHeight}px`;
     }
