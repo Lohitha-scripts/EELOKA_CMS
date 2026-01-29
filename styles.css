@@ -677,7 +677,7 @@ main,
 }
 
 .viewer-paper-arrow.right {
-    right: 20px;
+    right: 30px;
 }
 
 /* Interaction Hotspots - pinned to screen */
@@ -698,7 +698,7 @@ main,
 }
 
 .nav-hotspot.right {
-    right: 0;
+    right: 15px;
 }
 
 @media (max-width: 768px) {

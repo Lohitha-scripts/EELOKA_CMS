@@ -431,9 +431,21 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.clearRect(0, 0, pdfCanvas.width, pdfCanvas.height);
 
         // Reset Clipping
+        stopClipping();
+    }
+
+    function stopClipping() {
         isClippingMode = false;
-        clippingOverlay.style.display = 'none';
-        btnClipToggle.classList.remove('active');
+        if (clippingOverlay) {
+            clippingOverlay.style.display = 'none';
+            clippingOverlay.innerHTML = '';
+        }
+        if (btnClipToggle) {
+            btnClipToggle.style.background = '';
+            btnClipToggle.classList.remove('active');
+        }
+        const hotspots = document.querySelectorAll('.nav-hotspot, .viewer-paper-arrow');
+        hotspots.forEach(h => h.style.pointerEvents = 'auto');
     }
 
     if (btnCloseModal) btnCloseModal.onclick = closeViewer;
@@ -620,20 +632,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const offsetTop = canvasRect.top - containerRect.top;
         clippingOverlay.style.left = `${offsetLeft}px`;
         clippingOverlay.style.top = `${offsetTop}px`;
-        clippingOverlay.style.width = `${canvasRect.width}px`;
-        clippingOverlay.style.height = `${canvasRect.height}px`;
+        clippingOverlay.style.width = `${pdfCanvas.offsetWidth}px`;
+        clippingOverlay.style.height = `${pdfCanvas.offsetHeight}px`;
     }
 
     if (btnClipToggle) {
         btnClipToggle.onclick = () => {
             isClippingMode = !isClippingMode;
             if (isClippingMode) {
+                clippingOverlay.innerHTML = ''; // Clean start
                 clippingOverlay.style.display = 'block';
                 alignClippingOverlayToCanvas();
-                btnClipToggle.style.background = 'rgba(255,255,255,0.2)'; // Active state visual
+                btnClipToggle.style.background = 'rgba(255,255,255,0.2)';
+                const hotspots = document.querySelectorAll('.nav-hotspot, .viewer-paper-arrow');
+                hotspots.forEach(h => h.style.pointerEvents = 'none');
             } else {
-                clippingOverlay.style.display = 'none';
-                btnClipToggle.style.background = '';
+                stopClipping();
             }
         };
     }
@@ -735,6 +749,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnCloseClipModal) {
         btnCloseClipModal.onclick = () => {
             clipResultModal.style.display = 'none';
+            stopClipping();
         };
     }
 
