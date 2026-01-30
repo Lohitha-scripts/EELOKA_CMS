@@ -1,17 +1,7 @@
 /* =========================================
-   1. REGIONAL NEWSPAPER THEME & VARIABLES
+1. REGIONAL NEWSPAPER THEME & VARIABLES
    ========================================= */
-   * {
-  box-sizing: border-box;
-}
 
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  overflow-x: hidden; /* prevents side scroll if something overflows */
-}
-    
 :root {
     /* Palette */
     --color-primary: #800000;
@@ -73,6 +63,7 @@ main,
     width: 100%;
     max-width: 1400px;
     margin: 0 auto;
+    padding:0 16px; /*consistent left right spacing*/
 }
 
 /* =========================================
@@ -386,7 +377,7 @@ main,
 .archive-grid {
     display: grid;
     /* Desktop: fixed 5-up grid for visual uniformity */
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(5, minmax(0, 1fr)); /* prevents horizontal overflow in grids. */
     gap: 25px;
 }
 
