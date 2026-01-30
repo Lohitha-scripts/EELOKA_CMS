@@ -1,6 +1,7 @@
 /* =========================================
-   1. REGIONAL NEWSPAPER THEME & VARIABLES
+1. REGIONAL NEWSPAPER THEME & VARIABLES
    ========================================= */
+
 :root {
     /* Palette */
     --color-primary: #800000;
@@ -15,6 +16,10 @@
     /* Borders */
     --color-light-grey: #f4f4f4;
     /* Section backgrounds */
+    --color-highlight: #3b82f6; 
+    /* soft blue  fro thumbnail border*/
+    --color-highlight-bg: rgba(59, 130, 246, 0.12);
+    /* thumbnail-bg-clr */
 
     /* Typography */
     --font-serif: 'Georgia', 'Times New Roman', serif;
@@ -62,6 +67,7 @@ main,
     width: 100%;
     max-width: 1400px;
     margin: 0 auto;
+    padding:0 16px; /*consistent left right spacing*/
 }
 
 /* =========================================
@@ -375,7 +381,7 @@ main,
 .archive-grid {
     display: grid;
     /* Desktop: fixed 5-up grid for visual uniformity */
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(5, minmax(0, 1fr)); /* prevents horizontal overflow in grids. */
     gap: 25px;
 }
 
@@ -571,44 +577,91 @@ main,
     background: #525659;
 }
 
+/* changes made by k */
+/* left thumbnail side bar */
 .modal-sidebar {
     width: 200px;
     background: #1e1e1e;
-    /* Only vertical scrolling; avoid horizontal scrollbar clashes */
+
     overflow-y: auto;
     overflow-x: hidden;
+
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
     border-right: 1px solid #333;
     padding: 15px;
+
     display: flex;
     flex-direction: column;
     gap: 15px;
+
     position: relative;
     z-index: 101;
-    /* Ensure sidebar is above fixed hotspots */
 }
 
-.thumb-item img {
-    border: 2px solid transparent;
-    transition: border 0.2s;
+/* main newspaper view area */
+.modal-viewer-area {
+    flex: 1;                     /* take remaining width */
+    background: #525659;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;     /* CRITICAL: top aligned */
+    padding: 0;                  /* IMPORTANT: no padding */
+    position: relative;
 }
 
-/* Thumbnails: keep small, non-overlapping, and inside sidebar */
+/* hides scrollbar visually */
+.modal-sidebar::-webkit-scrollbar,
+.modal-viewer-area::-webkit-scrollbar {
+    display: none;
+}
+
+/* ensures page is not pushed down */
+#pdf-render-canvas {
+    display: block;
+    margin: 0;
+}
+
+
+
 .thumb-item {
+    border-radius: 6px;
+    padding: 6px;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 6px;
     cursor: pointer;
+    transition: background 0.2s;
 }
 
-.thumb-canvas {
+.thumb-item img,
+.thumb-item canvas {
+    display: block;
     width: 100%;
     height: auto;
-    display: block;
+    border-radius: 4px;
+    outline: 2px solid transparent;
+    transition: outline 0.2s;
 }
 
-.thumb-item.active img {
-    border-color: var(--color-accent);
+/* ACTIVE STATE */
+.thumb-item.active {
+    background: var(--color-highlight-bg);
+}
+
+.thumb-item.active img,
+.thumb-item.active canvas {
+    outline: 2px solid var(--color-highlight);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.25);
 }
 
 .modal-viewer-area {
