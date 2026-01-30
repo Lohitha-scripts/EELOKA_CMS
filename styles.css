@@ -674,12 +674,12 @@ main,
 }
 
 .viewer-paper-arrow.left {
-    left: calc(200px + 20px);
+    left: calc(200px + 40px);
     /* Position after sidebar */
 }
 
 .viewer-paper-arrow.right {
-    right: 20px;
+    right: 50px;
 }
 
 /* Interaction Hotspots - pinned to screen */
@@ -688,7 +688,7 @@ main,
     top: 60px;
     /* Below header */
     bottom: 0;
-    width: 15vw;
+    width: 12vw;
     z-index: 100;
     cursor: pointer;
     /* transition: background 0.2s; /* Debug: background: rgba(255,0,0,0.1) to see them */
@@ -700,7 +700,7 @@ main,
 }
 
 .nav-hotspot.right {
-    right: 0;
+    right: 60px;
 }
 
 @media (max-width: 768px) {
