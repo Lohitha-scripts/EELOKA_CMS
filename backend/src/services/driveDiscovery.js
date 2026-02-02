@@ -2,8 +2,9 @@ const axios = require("axios");
 const { google } = require("googleapis");
 const { logger } = require("../utils/logger");
 
-const DRIVE_API_KEY = "AIzaSyCn4CqY6CIIuojBeQ7hgmdrA250Ftk591M";
-const FOLDER_ID = "1LIahkbNZSnS9LGDWhX7nKqqwftH7WUh8";
+const DRIVE_API_KEY = process.env.DRIVE_API_KEY;
+const FOLDER_ID = process.env.DRIVE_FOLDER_ID;
+
 
 const DRIVE_API_URL = "https://www.googleapis.com/drive/v3/files";
 

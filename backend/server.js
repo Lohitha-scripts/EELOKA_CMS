@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
 const papersRoutes = require("./src/routes/papers.routes");
@@ -9,8 +11,10 @@ app.use(cors());
 
 app.use("/api", papersRoutes);
 
+const PORT = process.env.PORT || 3001;
+
 initPapers().then(() => {
-    app.listen(3001, () => {
-        logger.info("SERVER", "Backend running on http://localhost:3001");
+    app.listen(PORT, () => {
+        logger.info("SERVER", `Backend running on port ${PORT}`);
     });
 });
