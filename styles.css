@@ -16,7 +16,7 @@
     /* Borders */
     --color-light-grey: #f4f4f4;
     /* Section backgrounds */
-    --color-highlight: #3b82f6; 
+    --color-highlight: #3b82f6;
     /* soft blue  fro thumbnail border*/
     --color-highlight-bg: rgba(59, 130, 246, 0.12);
     /* thumbnail-bg-clr */
@@ -54,6 +54,8 @@ body {
     font-family: var(--font-serif);
     line-height: 1.6;
     padding-top: var(--header-height);
+    padding-bottom: 70px;
+    /* Space for fixed footer */
     /* Nav is fixed */
 }
 
@@ -67,7 +69,8 @@ main,
     width: 100%;
     max-width: 1400px;
     margin: 0 auto;
-    padding:0 16px; /*consistent left right spacing*/
+    padding: 0 16px;
+    /*consistent left right spacing*/
 }
 
 /* =========================================
@@ -84,6 +87,8 @@ main,
     z-index: 1000;
     display: flex;
     align-items: center;
+    transition: transform 0.3s ease-in-out;
+    /* Smooth auto-hide */
 }
 
 .nav-container {
@@ -381,7 +386,8 @@ main,
 .archive-grid {
     display: grid;
     /* Desktop: fixed 5-up grid for visual uniformity */
-    grid-template-columns: repeat(5, minmax(0, 1fr)); /* prevents horizontal overflow in grids. */
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    /* prevents horizontal overflow in grids. */
     gap: 25px;
 }
 
@@ -459,25 +465,66 @@ main,
 .footer {
     background: #111;
     color: white;
-    padding: 30px 0;
-    margin-top: auto;
+    padding: 12px 0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    min-height: 70px;
+    z-index: 1000;
+    transition: transform 0.3s ease-in-out;
+}
+
+.footer {
+    background: #111;
+    color: white;
+
+    /* strict fixed height */
+    height: 70px;
+    padding: 0;
+    /* Let flex handle vertical centering */
+
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+
+    display: flex;
+    align-items: center;
+    /* Vertical center */
+    justify-content: center;
+
+    transition: transform 0.3s ease-in-out;
 }
 
 .footer-content {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+
     display: flex;
-    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    /* Center horizontally if space allows, or use space-between */
+
+    height: 100%;
+    /* Fill the fixed footer height */
+    padding: 0 20px;
     gap: 20px;
+
+    font-size: 13px;
 }
 
 .socials {
     display: flex;
-    gap: 15px;
+    gap: 12px;
 }
 
 .social-link {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.1);
     display: flex;
@@ -486,6 +533,9 @@ main,
     color: white;
     text-decoration: none;
     transition: background 0.3s;
+
+    font-size: 14px;
+    line-height: 1;
 }
 
 .social-link:hover {
@@ -494,8 +544,9 @@ main,
 
 .copyright {
     font-family: var(--font-sans);
-    font-size: 0.8rem;
+    font-size: 0.6rem;
     opacity: 0.6;
+    white-space: nowrap;
 }
 
 /* =========================================
@@ -602,7 +653,8 @@ main,
 
 /* main newspaper view area */
 .modal-viewer-area {
-    flex: 1;                     /* take remaining width */
+    flex: 1;
+    /* take remaining width */
     background: #525659;
 
     overflow-y: auto;
@@ -613,8 +665,10 @@ main,
 
     display: flex;
     justify-content: center;
-    align-items: flex-start;     /* CRITICAL: top aligned */
-    padding: 0;                  /* IMPORTANT: no padding */
+    align-items: flex-start;
+    /* CRITICAL: top aligned */
+    padding: 0;
+    /* IMPORTANT: no padding */
     position: relative;
 }
 
@@ -847,6 +901,52 @@ main,
         display: none;
     }
 
+    /* Mobile Viewer Controls Alignment */
+    .modal-controls-right {
+        display: flex;
+        flex: 1;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 8px;
+        /* Consistent spacing */
+    }
+
+    .btn-tool {
+        padding: 0;
+        width: 44px;
+        height: 44px;
+        /* Touch friendly */
+        justify-content: center;
+        border-radius: 50%;
+        /* Circle buttons looks better for icons */
+        min-height: 44px;
+    }
+
+    /* Hide text on mobile */
+    .btn-tool i {
+        margin: 0;
+        font-size: 1.1rem;
+    }
+
+    .btn-tool {
+        font-size: 0;
+        /* Hides text */
+    }
+
+    .btn-tool i {
+        font-size: 1.2rem;
+        /* Restore icon size */
+    }
+
+    /* Ensure close button aligns */
+    .btn-close {
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
     /* Cleaner mobile modal */
 
     .container {
@@ -863,14 +963,28 @@ main,
         aspect-ratio: 0.8;
     }
 
-    /* Fixed Footer Mobile Overrides - Compact */
+    /* Fixed Footer Mobile Overrides - Compact Fixed Height */
     .footer {
         position: fixed;
         bottom: 0;
         left: 0;
         width: 100%;
-        padding: 8px 0;
+        padding: 0;
+
         height: 60px;
+        /* Fixed height per request */
+        min-height: 60px;
+
+        display: flex;
+        align-items: center;
+    }
+
+    .footer-content {
+        justify-content: space-between;
+        /* Spread out on mobile */
+        gap: 10px;
+        font-size: 11px;
+        /* Smaller text to fit */
     }
 
     .social-link {
@@ -880,8 +994,8 @@ main,
     }
 
     body {
-        padding-bottom: 60px;
-        /* Adjusted for smaller footer */
+        padding-bottom: 70px;
+        /* Adjusted for footer + spacing */
         /* Reduced header */
     }
 

@@ -11,10 +11,13 @@ app.use(cors());
 
 app.use("/api", papersRoutes);
 
-const PORT = process.env.PORT || 3001;
-
-initPapers().then(() => {
-    app.listen(PORT, () => {
-        logger.info("SERVER", `Backend running on port ${PORT}`);
-    });
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+    logger.info("SERVER", `Backend running on port ${PORT}`);
 });
+
+// THEN sync Drive
+initPapers()
+    .then(() => logger.info("DRIVE", "Initial sync complete"))
+    .catch(err => logger.error("DRIVE", err.message));
+
