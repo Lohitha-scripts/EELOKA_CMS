@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Backend API base ---
-    const API_BASE = window.API_BASE || 'http://localhost:3001/api';
+    const API_BASE = "https://eelokacms-production.up.railway.app/api";
     // Graceful placeholder (avoids broken image icon). Keep it simple—no UI redesign.
     const PLACEHOLDER_IMG =
         "data:image/svg+xml;charset=UTF-8," +

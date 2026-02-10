@@ -7,8 +7,12 @@ const { initPapers } = require("./src/services/paperService");
 const { logger } = require("./src/utils/logger");
 
 const app = express();
+
 app.use(cors({
-    origin: "*",
+    origin: [
+        "https://eelokacms-production-b811.up.railway.app",
+        "https://eelokacms-production.up.railway.app"
+    ],
     methods: ["GET"],
 }));
 // Railway Health Check & Root Route
