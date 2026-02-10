@@ -7,8 +7,10 @@ const { initPapers } = require("./src/services/paperService");
 const { logger } = require("./src/utils/logger");
 
 const app = express();
-app.use(cors());
-
+app.use(cors({
+    origin: "*",
+    methods: ["GET"],
+}));
 // Railway Health Check & Root Route
 app.get("/", (req, res) => res.status(200).send("Backend is running"));
 app.get("/health", (req, res) => res.status(200).json({ status: "OK" }));
