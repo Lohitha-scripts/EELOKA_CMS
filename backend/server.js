@@ -8,13 +8,7 @@ const { logger } = require("./src/utils/logger");
 
 const app = express();
 
-app.use(cors({
-    origin: [
-        "https://eelokacms-production-b811.up.railway.app",
-        "https://eelokacms-production.up.railway.app"
-    ],
-    methods: ["GET"],
-}));
+app.use(cors());
 // Railway Health Check & Root Route
 app.get("/", (req, res) => res.status(200).send("Backend is running"));
 app.get("/health", (req, res) => res.status(200).json({ status: "OK" }));
