@@ -223,4 +223,4 @@ Opens the selected newspaper PDF.
 
 ## Author
 
-Built by Lohitha 🚀
+Built by Lohitha and Chitrashree 🚀
